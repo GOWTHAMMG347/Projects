@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2714%27 fill=%27%230b2b33%27/%3E%3Crect x=%279%27 y=%2710%27 width=%278%27 height=%277%27 fill=%27none%27 stroke=%27%23ff5a1f%27 stroke-width=%272%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;550;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<title>Microplastic Detector — find particles in water sample images</title>
+<meta name="description" content="Upload a microscope or filter image and get every microplastic particle marked, counted and scored.">
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9" y="10" width="8" height="7" fill="none" stroke="#ff5a1f" stroke-width="2"/><circle cx="21" cy="21" r="2.4" fill="currentColor"/></svg> Microplastic Detector</a>
+      <nav aria-label="Main">
+        <a class="nav-link" href="/login.html">Sign in</a>
+        <a class="btn btn-marker btn-sm" href="/register.html">Create account</a>
+      </nav>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <h1>Count microplastics in a sample image, particle by particle.</h1>
+        <p class="lede">Upload a microscope or filter-paper photo, or a video of a sample. A YOLO11 model trained to recognise microplastics marks each particle it finds and scores how sure it is.</p>
+        <div class="hero-actions">
+          <a class="btn btn-marker" href="/register.html">Start analysing</a>
+          <a class="btn btn-ghost" href="/login.html">Sign in</a>
+        </div>
+      </div>
+      <div class="field-wrap"><canvas id="field" role="img" aria-label="Animated microscope view. Orange boxes follow microplastic particles; grey specks are ignored."></canvas></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="facts">
+    <div class="fact"><b>YOLO11m</b><span>Detection architecture</span></div>
+    <div class="fact"><b>microplastic</b><span>Class the model finds</span></div>
+    <div class="fact"><b>640 px</b><span>Training resolution</span></div>
+    <div class="fact"><b>Per particle</b><span>Confidence and size</span></div>
+  </div>
+
+  <section class="section" aria-labelledby="how">
+    <div class="section-head">
+      <h2 id="how">From image to particle count in three steps</h2>
+      <p>Your analyses are saved to your account, so you can compare samples and export results later.</p>
+    </div>
+    <ol class="steps">
+      <li><h3>Upload an image or video</h3><p>Drop in a photo of a filter, slide or water sample, or an MP4, MOV, AVI, MKV or WEBM clip.</p></li>
+      <li><h3>Set how strict to be</h3><p>Raise the confidence threshold to keep only certain detections, or lower it to catch faint particles.</p></li>
+      <li><h3>Review and export</h3><p>Check the marked image or video, read the particle data, then download the result or a CSV.</p></li>
+    </ol>
+  </section>
+
+  <section class="section split" aria-labelledby="read">
+    <div class="section-head">
+      <h2 id="read">Reading the results</h2>
+      <p>Detections are a screening aid. Confirm important findings with spectroscopy such as FTIR or Raman.</p>
+    </div>
+    <ul class="note-list">
+      <li><b>Confidence</b><span>How sure the model is that a box holds a microplastic. Each box shows its score.</span></li>
+      <li><b>Particle size</b><span>Sizes are in pixels. Enter your microns-per-pixel value to get micrometres.</span></li>
+      <li><b>Video counts</b><span>With tracking on, each particle keeps one ID across frames, so the unique count isn't inflated by repeat sightings. A particle that leaves and re-enters view can be counted twice.</span></li>
+      <li><b>Coverage</b><span>Share of the image covered by detection boxes. Overlapping boxes can overstate it.</span></li>
+    </ul>
+  </section>
+</main>
+
+<footer class="wrap footer">Microplastic Detector. Built on Ultralytics YOLO11.</footer>
+<script type="module">
+  import { startField } from "/js/field.js";
+  import { session } from "/js/api.js";
+  startField(document.getElementById("field"));
+  if (session.token) { // swap the nav for signed-in visitors
+    const nav = document.querySelector(".hero nav");
+    nav.innerHTML = '<a class="btn btn-marker btn-sm" href="/analyze.html">Open analyzer</a>';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2714%27 fill=%27%230b2b33%27/%3E%3Crect x=%279%27 y=%2710%27 width=%278%27 height=%277%27 fill=%27none%27 stroke=%27%23ff5a1f%27 stroke-width=%272%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;550;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<title>Analyze — Microplastic Detector</title>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="wrap">
+  <div class="page-head">
+    <div>
+      <h1 style="font-size:2rem">Analyze a sample image</h1>
+      <p>Upload an image, adjust the settings, then run detection. Results are saved to History.</p>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div>
+      <section class="panel" aria-labelledby="up-h">
+        <h2 id="up-h">Image</h2>
+        <div class="dropzone" id="drop" tabindex="0" role="button" aria-describedby="drop-help">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          <strong>Drop an image or click to browse</strong>
+          <small id="drop-help">JPG, PNG, WEBP, BMP or TIFF, up to 15 MB</small>
+        </div>
+        <input type="file" id="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/tiff" class="sr-only" tabindex="-1">
+        <div class="file-name" id="file-name"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="set-h">
+        <h2 id="set-h">Detection settings</h2>
+        <div class="slider-row">
+          <div class="top"><label for="conf">Confidence threshold</label><output id="conf-out" for="conf">0.25</output></div>
+          <input type="range" id="conf" min="0.05" max="0.95" step="0.05" value="0.25">
+          <div class="hint">Higher keeps only confident detections. Lower finds fainter particles but adds false alarms.</div>
+        </div>
+        <div class="slider-row">
+          <div class="top"><label for="iou">Overlap limit (IoU)</label><output id="iou-out" for="iou">0.45</output></div>
+          <input type="range" id="iou" min="0.1" max="0.9" step="0.05" value="0.45">
+          <div class="hint">Lower merges nearby boxes more aggressively.</div>
+        </div>
+        <div class="form-row">
+          <label for="imgsz">Analysis resolution</label>
+          <select class="input" id="imgsz">
+            <option value="640" selected>640 px (matches training)</option>
+            <option value="960">960 px</option>
+            <option value="1280">1280 px (small particles, slower)</option>
+            <option value="1536">1536 px (slowest)</option>
+          </select>
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <label for="um">Microns per pixel (optional)</label>
+          <input class="input" id="um" type="number" min="0" step="any" placeholder="e.g. 2.5">
+          <div class="hint">Adds particle sizes in micrometres.</div>
+        </div>
+      </section>
+
+      <button class="btn btn-marker btn-block" id="run" type="button" style="margin-top:1rem" disabled>Detect microplastics</button>
+    </div>
+
+    <div>
+      <section class="panel" aria-labelledby="view-h">
+        <div class="viewer-bar">
+          <h2 id="view-h" style="margin:0">Result</h2>
+          <div class="actions">
+            <label class="switch" id="toggle-wrap" hidden><input type="checkbox" id="toggle" checked> Show detections</label>
+            <button class="btn btn-ghost btn-sm" id="download" type="button" hidden>Download image</button>
+            <button class="btn btn-ghost btn-sm" id="csv" type="button" hidden>Export CSV</button>
+          </div>
+        </div>
+        <div class="viewer" id="viewer">
+          <div class="viewer-empty" id="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="1.6"/><path d="m21 16-5-4-8 7"/></svg>
+            <p>Your image will appear here. Detected particles are outlined in orange.</p>
+          </div>
+          <img id="img" alt="" hidden>
+          <div class="scanline" aria-hidden="true"></div>
+        </div>
+        <div id="status" class="sr-only" aria-live="polite"></div>
+      </section>
+
+      <div id="results" hidden>
+        <div class="stats">
+          <div class="stat primary"><span>Particles found</span><b id="s-count">0</b></div>
+          <div class="stat"><span>Average confidence</span><b id="s-conf">0%</b><small id="s-max"></small></div>
+          <div class="stat"><span>Estimated coverage</span><b id="s-cov">0%</b><small>of image area</small></div>
+          <div class="stat"><span>Processing time</span><b id="s-ms">0</b><small id="s-dim"></small></div>
+        </div>
+        <div id="no-hits" class="panel result-empty" hidden>
+          <strong>No microplastics found at this threshold.</strong>
+          <p>Lower the confidence threshold or raise the analysis resolution, then run again.</p>
+        </div>
+        <div class="table-wrap" id="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <caption class="sr-only">Detected particles</caption>
+              <thead><tr><th scope="col">Particle</th><th scope="col">Confidence</th><th scope="col">Width (px)</th><th scope="col">Height (px)</th><th scope="col">Longest (px)</th><th scope="col" class="um-col">Longest (µm)</th></tr></thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script type="module" src="/js/analyze.js"></script>
+</body>
+</html>

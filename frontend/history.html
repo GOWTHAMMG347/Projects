@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2714%27 fill=%27%230b2b33%27/%3E%3Crect x=%279%27 y=%2710%27 width=%278%27 height=%277%27 fill=%27none%27 stroke=%27%23ff5a1f%27 stroke-width=%272%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;550;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<title>History — Microplastic Detector</title>
+</head>
+<body>
+<div id="app-header"></div>
+<main class="wrap">
+  <div class="page-head">
+    <div>
+      <h1 style="font-size:2rem">History</h1>
+      <p>Every analysis you've run, newest first.</p>
+    </div>
+    <a class="btn btn-primary" id="new-btn" href="/analyze.html">New image analysis</a>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Analysis type">
+    <button class="tab" role="tab" id="tab-images" aria-controls="panel-images" aria-selected="true" type="button">Images</button>
+    <button class="tab" role="tab" id="tab-videos" aria-controls="panel-videos" aria-selected="false" type="button">Videos</button>
+  </div>
+
+  <div id="panel-images" role="tabpanel" aria-labelledby="tab-images">
+  <div class="history-stats" id="stats" hidden>
+    <div class="stat"><span>Analyses</span><b id="h-n">0</b></div>
+    <div class="stat primary"><span>Particles found</span><b id="h-total">0</b></div>
+    <div class="stat"><span>Average per image</span><b id="h-avg">0</b></div>
+    <div class="stat"><span>Average confidence</span><b id="h-conf">0%</b></div>
+  </div>
+
+  <div id="empty" class="panel result-empty" hidden>
+    <strong>No analyses yet.</strong>
+    <p style="margin:.4rem 0 1rem">Run your first detection and it will show up here.</p>
+    <a class="btn btn-primary" href="/analyze.html">Analyze an image</a>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="load-more"><button class="btn btn-ghost" id="more" type="button" hidden>Load more</button></div>
+  </div>
+
+  <div id="panel-videos" role="tabpanel" aria-labelledby="tab-videos" hidden>
+    <div id="vempty" class="panel result-empty" hidden>
+      <strong>No videos yet.</strong>
+      <p style="margin:.4rem 0 1rem">Process your first video and it will show up here.</p>
+      <a class="btn btn-primary" href="/video.html">Analyze a video</a>
+    </div>
+    <div class="grid" id="vgrid"></div>
+    <div class="load-more"><button class="btn btn-ghost" id="vmore" type="button" hidden>Load more</button></div>
+  </div>
+</main>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <div class="dialog-head">
+    <div><h2 id="dlg-title" style="font-size:1.2rem"></h2><div class="muted" id="dlg-meta" style="font-size:.88rem"></div></div>
+    <div class="actions">
+      <button class="btn btn-danger btn-sm" id="dlg-del" type="button">Delete</button>
+      <button class="btn btn-ghost btn-sm" id="dlg-close" type="button">Close</button>
+    </div>
+  </div>
+  <div class="dialog-body">
+    <div class="viewer-bar"><label class="switch"><input type="checkbox" id="dlg-toggle" checked> Show detections</label></div>
+    <div class="viewer"><img id="dlg-img" alt=""></div>
+    <div class="stats">
+      <div class="stat primary"><span>Particles</span><b id="d-count"></b></div>
+      <div class="stat"><span>Avg confidence</span><b id="d-conf"></b></div>
+      <div class="stat"><span>Coverage</span><b id="d-cov"></b></div>
+      <div class="stat"><span>Settings</span><b id="d-set" style="font-size:1.1rem"></b></div>
+    </div>
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <caption class="sr-only">Detected particles</caption>
+      <thead><tr><th scope="col">Particle</th><th scope="col">Confidence</th><th scope="col">Longest (px)</th><th scope="col" id="d-um-h">Longest (µm)</th></tr></thead>
+      <tbody id="d-rows"></tbody>
+    </table></div></div>
+  </div>
+</dialog>
+<script type="module" src="/js/history.js"></script>
+</body>
+</html>
